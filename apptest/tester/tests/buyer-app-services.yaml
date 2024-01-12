@@ -1,0 +1,25 @@
+actions:
+- name: Testing the reachability of BIAP Client NodeJS service
+  httpTest:
+    url: http://{{ .Env.BIAP_CLIENT_NODEJS_SERVICE_NAME }}.{{ .Env.NAMESPACE }}.svc.cluster.local:{{ .Env.BIAP_CLIENT_NODEJS_SERVICE_PORT }}
+    expect:
+      statusCode:
+        equals: 200
+- name: Testing the reachability of BIAP IGM NodeJS Service
+  httpTest:
+    url: http://{{ .Env.BIAP_IGM_NODEJS_SERVICE_NAME }}.{{ .Env.NAMESPACE }}.svc.cluster.local:{{ .Env.BIAP_IGM_NODEJS_SERVICE_PORT }}
+    expect:
+      statusCode:
+        equals: 200
+- name: Testing the reachability of Buyer App Frontend deployment
+  httpTest:
+    url: http://{{ .Env.BUYER_APP_FRONTEND_SERVICE_NAME }}.{{ .Env.NAMESPACE }}.svc.cluster.local:{{ .Env.BUYER_APP_FRONTEND_SERVICE_PORT }}
+    expect:
+      statusCode:
+        equals: 200
+- name: Testing the reachability of Py ONDC Protocol service
+  httpTest:
+    url: http://{{ .Env.PY_ONDC_PROTOCOL_SERVICE_NAME }}.{{ .Env.NAMESPACE }}.svc.cluster.local:{{ .Env.PY_ONDC_PROTOCOL_SERVICE_PORT }}
+    expect:
+      statusCode:
+        equals: 404

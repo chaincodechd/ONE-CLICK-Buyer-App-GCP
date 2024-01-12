@@ -1,0 +1,8 @@
+actions:
+- name: Db operations and authentication
+  bashTest:
+    script: |-
+      mongosh mongodb://{{ .Env.MONGODB_SERVICE_NAME }}.{{ .Env.NAMESPACE }}.svc.cluster.local:{{ .Env.MONGODB_PORT }} --eval "show dbs"
+    expect:
+      exitCode:
+        equals: 0

@@ -1,0 +1,28 @@
+apiVersion: v1
+data:
+  JUSPAY_SECRET_KEY_PATH: ""
+  JUSPAY_BASE_URL: {{ .Values.biapClientNodeJS.configMap.juspay_base_url }}
+  FIREBASE_ADMIN_SERVICE_ACCOUNT: {{ .Values.biapClientNodeJS.configMap.firebase_admin_service_account }}
+  ONDC_BASE_API_URL: https://{{ .Values.appDomain }}
+  JUSPAY_WEBHOOK_USERNAME: {{ .Values.biapClientNodeJS.configMap.juspay_webhook_username }}
+  JUSPAY_WEBHOOK_PASSWORD: ""
+  DOMAIN: {{ .Values.biapClientNodeJS.configMap.domain }}
+  CITY: {{ .Values.biapClientNodeJS.configMap.city }}
+  COUNTRY: {{ .Values.biapClientNodeJS.configMap.country }}
+  BAP_ID: {{ .Values.appDomain }}
+  BAP_URL: https://{{ .Values.appDomain }}/protocol/v1
+  PROTOCOL_BASE_URL: https://{{ .Values.appDomain }}
+  DB_CONNECTION_STRING: mongodb://mongodb-svc.{{ .Release.Namespace }}.svc.cluster.local:27017/sandbox_client
+  BAP_UNIQUE_KEY_ID: {{ .Values.biapClientNodeJS.configMap.bap_unique_key_id | quote }}
+  PORT: {{ .Values.biapClientNodeJS.configMap.port | quote }}
+  NODE_DEV: {{ .Values.biapClientNodeJS.configMap.node_dev }}
+  REGISTRY_BASE_URL: https://agrih.registry.ondc.org/ondc
+  ENV_TYPE: {{ .Values.biapClientNodeJS.configMap.env_type }}
+  BAP_FINDER_FEE_TYPE: Percent
+  BAP_FINDER_FEE_AMOUNT: "3.0"
+  SSE_TIMEOUT: "5000"
+  JUSPAY_MERCHANT_ID: {{ .Values.biapClientNodeJS.configMap.juspay_merchant_id }}
+kind: ConfigMap
+metadata:
+  name: biap-client-node-js-cm
+  namespace: {{ .Release.Namespace }}

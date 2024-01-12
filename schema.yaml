@@ -1,0 +1,201 @@
+x-google-marketplace:
+  schemaVersion: v2
+
+  applicationApiVersion: v1beta1
+
+  publishedVersion: "1.0.0"
+  publishedVersionMetadata:
+    releaseNote: >-
+      Initial release.
+    releaseTypes:
+      - Feature
+    recommended: false
+
+  images:
+    '':
+      properties:
+        buyerAppFrontend.image.repo:
+          type: REPO_WITH_REGISTRY
+        buyerAppFrontend.image.tag:
+          type: TAG
+    biap_client_node_js:
+      properties:
+        biapClientNodeJS.image.repo:
+          type: REPO_WITH_REGISTRY
+        biapClientNodeJS.image.tag:
+          type: TAG
+    biap_igm_node_js:
+      properties:
+        biapIGMNodeJS.image.repo:
+          type: REPO_WITH_REGISTRY
+        biapIGMNodeJS.image.tag:
+          type: TAG
+    mongo:
+      properties:
+        mongo.image.repo:
+          type: REPO_WITH_REGISTRY
+        mongo.image.tag:
+          type: TAG
+    # mmi_client:
+    #   properties:
+    #     mmiClient.image.repo:
+    #       type: REPO_WITH_REGISTRY
+    #     mmiClient.image.tag:
+    #       type: TAG
+    py_ondc_protocol:
+      properties:
+        pyOndcProtocol.image.repo:
+          type: REPO_WITH_REGISTRY
+        pyOndcProtocol.image.tag:
+          type: TAG
+
+  deployerServiceAccount:
+      description: >
+        Service account used by application deployer
+      roles:
+      - type: ClusterRole
+        rulesType: CUSTOM
+        rules:
+        - apiGroups: ['rbac.authorization.k8s.io']
+          resources:
+          - clusterroles
+          - clusterrolebindings
+          verbs:
+          - '*'
+        - apiGroups: ['apiextensions.k8s.io']
+          resources:
+          - customresourcedefinitions
+          verbs:
+          - '*'
+        - apiGroups: ['']
+          resources:
+          - persistentvolumes
+          - persistentvolumeclaims
+          verbs:
+          - '*'
+        - apiGroups: ['storage.k8s.io']
+          resources:
+          - storageclasses
+          verbs:
+          - '*'
+
+properties:
+  name:
+    type: string
+    x-google-marketplace:
+      type: NAME
+  namespace:
+    type: string
+    x-google-marketplace:
+      type: NAMESPACE
+  appDomain:
+    type: string
+    title: AppDomain
+    description: Ingress endpoint for buyer app
+    default: "buyer-app-ecom.chaincodeconsulting.com"
+  biapClientNodeJS.replicas:
+    type: integer
+    title: BIAPCLIENTNODEJS REPLICAS
+    description: No. of replicas to be deployed for biapClientNodeJS
+    default: 1
+  biapClientNodeJS.configMap.juspay_webhook_username:
+    type: string
+    title: JUSPAY Webhook Username
+    default: "ONDC"
+  biapClientNodeJS.secret.bap_private_key:
+    type: string
+    title: BAP Private Key
+    description: BAP Private Key
+    default: "1/s++hI7exFjEaQhaXY03HbTxZHbQomq1Wi1iZU2upO1M+JxGuas2eCKwhHXwJwuVOdsdCRe2V3h6Yxisr0NDA=="
+  biapClientNodeJS.secret.bap_public_key:
+    type: string
+    title: BAP Public Key
+    description: BAP Public Key
+    default: "tTPicRrmrNngisIR18CcLlTnbHQkXtld4emMYrK9DQw="
+  biapIGMNodeJS.replicas:
+    type: integer
+    title: BIAPIGMNODEJS REPLICAS
+    description: No. of replicas to be deployed for biap igm nodejs
+    default: 1
+  buyerAppFrontend.replicas:
+    type: integer
+    title: BUYER APP FRONTEND REPLICAS
+    description: No. of replicas to be deployed for buyer app frontend
+    default: 1
+  buyerAppFrontend.configMap.react_app_firebase_auth_domain:
+    type: string
+    title: REACT APP FIREBASE AUTH DOMAIN
+    description: React app firebase auth domain
+    default: "fir-project-d4f14.firebaseapp.com"
+  buyerAppFrontend.configMap.react_app_firebase_api_key:
+    type: string
+    title: REACT APP FIREBASE API KEY
+    description: React app firebase api key
+    default: "AIzaSyDfQyVpX9fLZ8lCoTDEqglrufbXc3C3Cwk"
+  # mmiClient.replicas:
+  #   type: integer
+  #   title: MMI CLIENT REPLICAS
+  #   description: No. of replicas to be deployed for mmi client
+  #   default: 1
+  # mmiClient.secret.mmi_client_id:
+  #   type: string
+  #   title: MMI CLIENT ID
+  #   description: MMI Client ID
+  #   default: "33OkryzDZsKKW3Gz4NLYm6SVJliaRu8JFy3EnpMxtRTXwyxZryTRo0N7VhZpOcLoI2dyLVgyM2A0mbVErx_tdA=="
+  # mmiClient.secret.mmi_client_secret:
+  #   type: string
+  #   title: MMI CLIENT SECRET
+  #   description: MMI Client SECRET
+  #   default: "lrFxI-iSEg-j6oY4QYm65xy9_AUuDzdu_53b62sZd77UKmgXiwKxhuRkp5vZlXc4Q2-D1v7lA1rexhsE47hQXo5XietNO7Mm"
+  # mmiClient.secret.mmi_advance_api_key:
+  #   type: string
+  #   title: MMI ADVANCE API KEY
+  #   description: MMI Advance API Key
+  #   default: "af3459c6c02fdcb08cb4a47ecc3fda90"
+  mongo.replicas:
+    type: integer
+    title: No. of replicas to be deployed for mongodb
+    description: No. of replicas to be deployed for mongodb
+    default: 1
+  mongo.storageSize:
+    type: string
+    title: MongoDB storageSize
+    description: StorageSize for MongoDB volume
+    default: "5Gi"
+  pyOndcProtocol.replicas:
+    type: integer
+    title: No. of replicas to be deployed for pyOndcProtocol
+    description: No. of replicas to be deployed for pyOndcProtocol
+    default: 1
+  pyOndcProtocol.secret.bap_private_key:
+    type: string
+    title: BAP Private Key
+    description: BAP Private Key
+    default: "1/s++hI7exFjEaQhaXY03HbTxZHbQomq1Wi1iZU2upO1M+JxGuas2eCKwhHXwJwuVOdsdCRe2V3h6Yxisr0NDA=="
+  pyOndcProtocol.secret.bap_public_key:
+    type: string
+    title: BAP Public Key
+    description: BAP Public Key
+    default: "tTPicRrmrNngisIR18CcLlTnbHQkXtld4emMYrK9DQw="
+
+required:
+- name
+- namespace
+- appDomain
+- biapClientNodeJS.replicas
+- biapClientNodeJS.configMap.juspay_webhook_username
+- biapClientNodeJS.secret.bap_private_key
+- biapClientNodeJS.secret.bap_public_key
+- biapIGMNodeJS.replicas
+- buyerAppFrontend.replicas
+- buyerAppFrontend.configMap.react_app_firebase_auth_domain
+- buyerAppFrontend.configMap.react_app_firebase_api_key
+# - mmiClient.replicas
+# - mmiClient.secret.mmi_client_id
+# - mmiClient.secret.mmi_client_secret
+# - mmiClient.secret.mmi_advance_api_key
+- mongo.replicas
+- mongo.storageSize
+- pyOndcProtocol.replicas
+- pyOndcProtocol.secret.bap_private_key
+- pyOndcProtocol.secret.bap_public_key

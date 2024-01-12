@@ -1,0 +1,73 @@
+appName: buyer-app
+appDomain: buyer-app.ondcsutr.com
+
+biapClientNodeJS:
+  replicas: 1
+  image: 
+    repo: gcr.io/chaincode-consulting/buyer_app/biap-client-node-js
+    tag: 1.0.0
+  configMap:
+    juspay_webhook_username: ONDC
+    juspay_base_url: https://sandbox.juspay.in
+    firebase_admin_service_account: ./config/dev/firebase-service-account.json
+    domain: nic2004:52110
+    city: std:080
+    country: IND
+    bap_unique_key_id: 814
+    port: 3000
+    node_dev: dev
+    env_type: testing
+    juspay_merchant_id: ONDC
+  secret:
+    juspay_api_key: ""
+    bap_private_key: 1/s++hI7exFjEaQhaXY03HbTxZHbQomq1Wi1iZU2upO1M+JxGuas2eCKwhHXwJwuVOdsdCRe2V3h6Yxisr0NDA==
+    bap_public_key: tTPicRrmrNngisIR18CcLlTnbHQkXtld4emMYrK9DQw=
+
+biapIGMNodeJS:
+  replicas: 1
+  image: 
+    repo: gcr.io/chaincode-consulting/buyer_app/biap-igm-node-js
+    tag: 1.0.0
+  port: 6969
+  configMap:
+    domain: nic2004:52110
+    country: IND
+
+buyerAppFrontend:
+  replicas: 1
+  image:
+    repo: gcr.io/chaincode-consulting/buyer_app/buyer-app-frontend
+    tag: 1.0.0
+  configMap:
+    react_app_firebase_auth_domain: fir-project-d4f14.firebaseapp.com
+  secret:
+    react_app_firebase_api_key: AIzaSyDfQyVpX9fLZ8lCoTDEqglrufbXc3C3Cwk
+
+# mmiClient:
+#   replicas: 1
+#   port: 8000
+#   image:
+#     repo: gcr.io/chaincode-consulting/buyer_app/mmi-client
+#     tag: 1.0.0
+#   secret:
+#     mmi_client_id: 33OkryzDZsKKW3Gz4NLYm6SVJliaRu8JFy3EnpMxtRTXwyxZryTRo0N7VhZpOcLoI2dyLVgyM2A0mbVErx_tdA==
+#     mmi_client_secret: lrFxI-iSEg-j6oY4QYm65xy9_AUuDzdu_53b62sZd77UKmgXiwKxhuRkp5vZlXc4Q2-D1v7lA1rexhsE47hQXo5XietNO7Mm
+#     mmi_advance_api_key: af3459c6c02fdcb08cb4a47ecc3fda90
+
+mongo:
+  replicas: 1
+  port: 27017
+  image:
+    repo: gcr.io/chaincode-consulting/buyer_app/mongo
+    tag: 1.0.0
+  storageSize: 5Gi
+
+pyOndcProtocol:
+  replicas: 1
+  port: 5555
+  image:
+    repo: gcr.io/chaincode-consulting/buyer_app/py-ondc-protocol
+    tag: 1.0.0
+  secret:
+    bap_private_key: 1/s++hI7exFjEaQhaXY03HbTxZHbQomq1Wi1iZU2upO1M+JxGuas2eCKwhHXwJwuVOdsdCRe2V3h6Yxisr0NDA==
+    bap_public_key: tTPicRrmrNngisIR18CcLlTnbHQkXtld4emMYrK9DQw=

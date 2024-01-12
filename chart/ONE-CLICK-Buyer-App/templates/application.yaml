@@ -1,0 +1,83 @@
+---
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: "{{ .Release.Name }}"
+  annotations:
+    kubernetes-engine.cloud.google.com/icon: >-
+      data:image/png;base64,{{ .Files.Get "logo.png" | b64enc }}
+    marketplace.cloud.google.com/deploy-info: '{"partner_id": "click-to-deploy-containers", "product_id": "buyer-app", "partner_name": "Google Click to Deploy"}'
+  labels:
+    app.kubernetes.io/name: "{{ .Release.Name }}"
+spec:
+  descriptor:
+    type: Buyer-App
+    version: "{{ .Values.buyerAppFrontend.image.tag }}"
+    description: |-
+      Deployer to deploy ONDC compliant Buyer Application on GCP Marketplace
+    maintainers:
+    - name: CCL-ONDC 
+      email: ondctech@chaincodeconsulting.com
+    notes: |-
+      # Access Buyer App Server UI
+
+      Set the below env. variables,
+
+      export NAMESPACE=default   # Or the namespace where this app is deployed
+      export APP_NAME=buyer-app # Or the name of the app used during the deployment
+
+      Forward the Server UI port locally:
+
+      ```
+      kubectl port-forward \
+        --namespace "${NAMESPACE}" \
+        svc/"${APP_NAME}-frontend" 8000:80
+      ```
+
+      Access the UI at http://localhost:8000/
+  info:
+  - name: Application Name
+    value: "{{ .Release.Name }}"
+  - name: Application Namespace
+    value: "{{ .Release.Namespace }}"
+  - name: ONE-CLICK-Buyer-App-URL
+    type: Reference
+    valueFrom:
+      ingressRef:
+        name: {{ .Values.appName }}-frontend-ingress
+        path: /
+        protocol: HTTPS
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "{{ .Release.Name }}"
+  componentKinds:
+  - group: apps/v1
+    kind: Deployment
+  - group: apps/v1
+    kind: StatefulSet
+  - group: v1
+    kind: PersistentVolumeClaim
+  - group: v1
+    kind: PersistentVolume
+  - group: v1
+    kind: Secret
+  - group: v1
+    kind: Service
+  - group: networking.k8s.io/v1 
+    kind: Ingress
+  - group: v1
+    kind: ConfigMap
+  - group: v1
+    kind: ServiceAccount
+  - group: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+  - group: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+  - group: rbac.authorization.k8s.io/v1
+    kind: Role
+  - group: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+  - group: batch/v1
+    kind: Job
+  - group: storage.k8s.io/v1
+    kind: StorageClass

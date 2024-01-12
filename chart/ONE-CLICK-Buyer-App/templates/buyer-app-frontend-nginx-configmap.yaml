@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-nginx-conf-cm
+  namespace: {{ .Release.Namespace }}
+data:
+  nginx.conf: |
+    server {
+      listen 80;
+      server_name {{ .Values.appDomain }};
+      server_tokens off;
+
+      location /maps/api/ {
+        proxy_pass https://maps.googleapis.com/maps/api/;
+        proxy_read_timeout 240s;
+        add_header 'Access-Control-Allow-Origin' '*';
+      }
+
+      # location /mmi/api/ {
+      #   proxy_pass http://mmi-client-svc.{{ .Release.Namespace }}.svc.cluster.local:8000/v1/api/;
+      #   proxy_read_timeout 240s;
+      #   add_header 'Access-Control-Allow-Origin' '*';
+      # }
+
+      # location /knowlarity/api/ {
+      #   proxy_pass http://mmi-client-svc.{{ .Release.Namespace }}.svc.cluster.local:8000/v1/api/;
+      #   proxy_read_timeout 240s;
+      #   add_header 'Access-Control-Allow-Origin' '*';
+      # }
+
+      location /api/payment/ {
+        proxy_pass http://biap-client-node-js-svc.{{ .Release.Namespace }}.svc.cluster.local:3000/api/payment/;
+        proxy_read_timeout 240s;
+        add_header 'Access-Control-Allow-Origin' '*';
+      } 
+
+      location /clientApis/events {
+        proxy_set_header Connection '';
+        proxy_http_version 1.1;
+        chunked_transfer_encoding off;
+        proxy_pass http://biap-client-node-js-svc.{{ .Release.Namespace }}.svc.cluster.local:3000/clientApis/events;
+        add_header 'Access-Control-Allow-Origin' '*';
+        proxy_buffering off;
+        proxy_cache off;
+      }
+
+      location /clientApis/ {
+        proxy_pass http://biap-client-node-js-svc.{{ .Release.Namespace }}.svc.cluster.local:3000/clientApis/;
+        proxy_read_timeout 240s;
+        add_header 'Access-Control-Allow-Origin' '*';
+      }
+
+
+      location /protocol/ {
+        proxy_pass http://py-ondc-protocol-svc.{{ .Release.Namespace }}.svc.cluster.local:5555/protocol/;
+        proxy_read_timeout 240s;
+        add_header 'Access-Control-Allow-Origin' '*';
+      }
+
+      location /protocol/v1/on_search {
+        proxy_pass http://py-ondc-protocol-svc.{{ .Release.Namespace }}.svc.cluster.local:5555/protocol/v1/on_search;
+        proxy_read_timeout 240s;
+        add_header 'Access-Control-Allow-Origin' '*';
+      }
+
+      location /protocol/response/v1/on_search {
+        proxy_pass http://py-ondc-protocol-svc.{{ .Release.Namespace }}.svc.cluster.local:5555/protocol/response/v1/on_search;
+        proxy_read_timeout 240s;
+        add_header 'Access-Control-Allow-Origin' '*';
+      }
+
+      location / {
+        root /usr/share/nginx/html;
+        index  index.html;
+        try_files $uri $uri/ /index.html;
+      }
+    }

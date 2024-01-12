@@ -1,0 +1,28 @@
+tester:
+  replicas: 1
+  image: 
+    repo: gcr.io/chaincodeconsulting-llp-public/buyer_app/tester
+    # repo: gcr.io/chaincode-consulting/buyer_app/tester
+    tag: 1.5
+
+appName: buyer-app
+
+mongodb: 
+  service_name: mongodb-svc
+  port: 27017
+
+biapClientNodeJS:
+  service_name: biap-client-node-js-svc
+  port: 3000
+
+biapIGMNodeJS:
+  service_name: biap-igm-node-js-svc
+  port: 6969
+
+buyerAppFrontend:
+  service_name: buyer-app-frontend-svc
+  port: 80
+
+pyONDCProtocol:
+  service_name: py-ondc-protocol-svc
+  port: 5555

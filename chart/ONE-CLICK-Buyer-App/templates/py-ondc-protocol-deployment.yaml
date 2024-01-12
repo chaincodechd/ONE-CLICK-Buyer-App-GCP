@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: py-ondc-protocol
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.pyOndcProtocol.replicas }}
+  selector:
+    matchLabels:
+      app: py-ondc-protocol
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: py-ondc-protocol
+    spec:
+      initContainers:
+      - name: check-mongodb
+        image: "{{ .Values.mongo.image.repo }}:{{ .Values.mongo.image.tag }}"
+        command:
+        - "/bin/sh"
+        - "-c"
+        args:
+        - |
+          until mongosh mongodb://mongodb-svc.{{ .Release.Namespace }}.svc.cluster.local:27017 --eval "show dbs"; do
+            echo "MongoDB not available yet. Retrying in 10 seconds..."
+            sleep 10
+          done
+      containers:
+      - env:
+        - name: ENV
+          valueFrom:
+            configMapKeyRef:
+              name: py-ondc-protocol-cm
+              key: ENV
+        - name: MONGO_DATABASE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: py-ondc-protocol-cm
+              key: MONGO_DATABASE_HOST
+        - name: BAP_URL
+          valueFrom:
+            configMapKeyRef:
+              name: py-ondc-protocol-cm
+              key: BAP_URL
+        - name: CLIENT_WEBHOOK_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: py-ondc-protocol-cm
+              key: CLIENT_WEBHOOK_ENDPOINT
+        - name: REGISTRY_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: py-ondc-protocol-cm
+              key: REGISTRY_BASE_URL
+        - name: VERIFICATION_ENABLE
+          valueFrom:
+            configMapKeyRef:
+              name: py-ondc-protocol-cm
+              key: VERIFICATION_ENABLE
+        - name: BAP_UNIQUE_KEY_ID
+          valueFrom:
+            configMapKeyRef:
+              name: py-ondc-protocol-cm
+              key: BAP_UNIQUE_KEY_ID
+        - name: BAP_ID
+          valueFrom:
+            configMapKeyRef:
+              name: py-ondc-protocol-cm
+              key: BAP_ID        
+        envFrom:
+        - secretRef:
+            name: py-ondc-protocol-secret
+        image: {{ .Values.pyOndcProtocol.image.repo }}:{{ .Values.pyOndcProtocol.image.tag }}
+        imagePullPolicy: Always
+        name: py-ondc-protocol
+        ports:
+        - containerPort: {{ .Values.pyOndcProtocol.port }}
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 300m
+            memory: 1Gi
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.pyOndcProtocol.port }}
+          initialDelaySeconds: 60  
+          periodSeconds: 300  
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: py-ondc-protocol-svc
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: py-ondc-protocol
+  ports:
+    - protocol: TCP
+      port: {{ .Values.pyOndcProtocol.port }}
+      targetPort: {{ .Values.pyOndcProtocol.port }}

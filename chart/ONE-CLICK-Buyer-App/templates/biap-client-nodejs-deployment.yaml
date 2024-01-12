@@ -1,0 +1,179 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biap-client-node-js
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.biapClientNodeJS.replicas }}
+  selector:
+    matchLabels:
+      app: biap-client-node-js
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: biap-client-node-js
+    spec:
+      initContainers:
+      - name: check-mongodb
+        image: "{{ .Values.mongo.image.repo }}:{{ .Values.mongo.image.tag }}"
+        command:
+        - "/bin/sh"
+        - "-c"
+        args:
+        - |
+          until mongosh mongodb://mongodb-svc.{{ .Release.Namespace }}.svc.cluster.local:27017 --eval "show dbs"; do
+            echo "MongoDB not available yet. Retrying in 10 seconds..."
+            sleep 10
+          done
+      containers:
+      - env:
+        - name: JUSPAY_SECRET_KEY_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: JUSPAY_SECRET_KEY_PATH
+        - name: JUSPAY_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: JUSPAY_BASE_URL
+        - name: FIREBASE_ADMIN_SERVICE_ACCOUNT
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: FIREBASE_ADMIN_SERVICE_ACCOUNT
+        - name: ONDC_BASE_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: ONDC_BASE_API_URL
+        - name: JUSPAY_WEBHOOK_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: JUSPAY_WEBHOOK_USERNAME
+        - name: JUSPAY_WEBHOOK_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: JUSPAY_WEBHOOK_PASSWORD
+        - name: DOMAIN
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: DOMAIN
+        - name: CITY
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: CITY 
+        - name: COUNTRY
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: COUNTRY 
+        - name: BAP_ID
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: BAP_ID 
+        - name: BAP_URL
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: BAP_URL 
+        - name: PROTOCOL_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: PROTOCOL_BASE_URL 
+        - name: DB_CONNECTION_STRING
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: DB_CONNECTION_STRING 
+        - name: BAP_UNIQUE_KEY_ID
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: BAP_UNIQUE_KEY_ID 
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: PORT 
+        - name: NODE_DEV
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: NODE_DEV 
+        - name: REGISTRY_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: REGISTRY_BASE_URL 
+        - name: ENV_TYPE
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: ENV_TYPE 
+        - name: BAP_FINDER_FEE_TYPE
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: BAP_FINDER_FEE_TYPE 
+        - name: BAP_FINDER_FEE_AMOUNT
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: BAP_FINDER_FEE_AMOUNT 
+        - name: SSE_TIMEOUT
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: SSE_TIMEOUT 
+        - name: JUSPAY_MERCHANT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: biap-client-node-js-cm
+              key: JUSPAY_MERCHANT_ID      
+        envFrom:
+        - secretRef:
+            name: biap-client-node-js-secret
+        image: {{ .Values.biapClientNodeJS.image.repo }}:{{ .Values.biapClientNodeJS.image.tag }}
+        imagePullPolicy: Always
+        name: biap-client-node-js
+        ports:
+        - containerPort: {{ .Values.biapClientNodeJS.configMap.port }}
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 300m
+            memory: 1Gi
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.biapClientNodeJS.configMap.port }}
+          initialDelaySeconds: 60  
+          periodSeconds: 300  
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: biap-client-node-js-svc
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: biap-client-node-js
+  ports:
+    - protocol: TCP
+      port: {{ .Values.biapClientNodeJS.configMap.port }}
+      targetPort: {{ .Values.biapClientNodeJS.configMap.port }}

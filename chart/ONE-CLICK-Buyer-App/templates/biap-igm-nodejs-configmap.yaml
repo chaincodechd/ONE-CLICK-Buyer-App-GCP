@@ -1,0 +1,18 @@
+apiVersion: v1
+data:
+  DB_CONNECTION_STRING: mongodb://mongodb-svc.{{ .Release.Namespace }}.svc.cluster.local:27017/sandbox_client  
+  PROTOCOL_BASE_URL: https://{{ .Values.appDomain }}
+  SSE_TIMEOUT: "5000"
+  DOMAIN: {{ .Values.biapIGMNodeJS.configMap.domain }}
+  COUNTRY: {{ .Values.biapIGMNodeJS.configMap.country }}
+  BAP_ID: {{ .Values.appDomain }}
+  EXPECTED_RESPONSE_TIME: PT1H
+  EXPECTED_RESOLUTION_TIME: P1D
+  BUGZILLA_API_KEY: ""
+  BUGZILLA_SERVICE_URI: http://bugzilla-node-backend:8001
+  BAP_URL: https://{{ .Values.biapIGMNodeJS.configMap.base_url }}/protocol/v1
+  VOLUME_IMAGES_BASE_URL: http://biap-igm-node-js-svc.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.biapIGMNodeJS.port }}/uploads/
+kind: ConfigMap
+metadata:
+  name: biap-igm-node-js-cm
+  namespace: {{ .Release.Namespace }}

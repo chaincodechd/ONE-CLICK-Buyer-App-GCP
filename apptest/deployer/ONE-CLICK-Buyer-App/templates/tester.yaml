@@ -1,0 +1,45 @@
+# TODO(marketplace-k8s-app-tools/issues/302): Remove this after native
+# Testrunner support is added to deployer
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-tester"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: "{{ .Release.Name }}"
+  annotations:
+    marketplace.cloud.google.com/verification: test
+spec:
+  serviceAccountName: {{ .Release.Name }}-deployer-sa
+  containers:
+  - name: tester
+    image: "{{ .Values.tester.image.repo }}:{{ .Values.tester.image.tag }}"
+    imagePullPolicy: Always
+    env:
+    - name: NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+    - name: APP_NAME
+      value: {{ .Values.appName }}
+    - name: MONGODB_SERVICE_NAME
+      value: {{ .Values.mongodb.service_name }}
+    - name: MONGODB_PORT
+      value: "{{ .Values.mongodb.port }}"
+    - name: BIAP_CLIENT_NODEJS_SERVICE_NAME
+      value: {{ .Values.biapClientNodeJS.service_name }}
+    - name: BIAP_CLIENT_NODEJS_SERVICE_PORT
+      value: "{{ .Values.biapClientNodeJS.port }}"
+    - name: BIAP_IGM_NODEJS_SERVICE_NAME
+      value: {{ .Values.biapIGMNodeJS.service_name }}
+    - name: BIAP_IGM_NODEJS_SERVICE_PORT
+      value: "{{ .Values.biapIGMNodeJS.port }}"
+    - name: BUYER_APP_FRONTEND_SERVICE_NAME
+      value: {{ .Values.buyerAppFrontend.service_name }}
+    - name: BUYER_APP_FRONTEND_SERVICE_PORT
+      value: "{{ .Values.buyerAppFrontend.port }}"
+    - name: PY_ONDC_PROTOCOL_SERVICE_NAME
+      value: {{ .Values.pyONDCProtocol.service_name }}
+    - name: PY_ONDC_PROTOCOL_SERVICE_PORT
+      value: "{{ .Values.pyONDCProtocol.port }}"
+  restartPolicy: Never

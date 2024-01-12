@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biap-igm-node-js
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.biapIGMNodeJS.replicas }}
+  selector:
+    matchLabels:
+      app: biap-igm-node-js
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: biap-igm-node-js
+    spec:
+      initContainers:
+      - name: check-mongodb
+        image: "{{ .Values.mongo.image.repo }}:{{ .Values.mongo.image.tag }}"
+        command:
+        - "/bin/sh"
+        - "-c"
+        args:
+        - |
+          until mongosh mongodb://mongodb-svc.{{ .Release.Namespace }}.svc.cluster.local:27017 --eval "show dbs"; do
+            echo "MongoDB not available yet. Retrying in 10 seconds..."
+            sleep 10
+          done
+      containers:
+      - env:
+        - name: DB_CONNECTION_STRING
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: DB_CONNECTION_STRING
+        - name: PROTOCOL_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: PROTOCOL_BASE_URL
+        - name: SSE_TIMEOUT
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: SSE_TIMEOUT
+        - name: DOMAIN
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: DOMAIN
+        - name: COUNTRY
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: COUNTRY
+        - name: BAP_ID
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: BAP_ID
+        - name: EXPECTED_RESPONSE_TIME
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: EXPECTED_RESPONSE_TIME
+        - name: EXPECTED_RESOLUTION_TIME
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: EXPECTED_RESOLUTION_TIME    
+        - name: BUGZILLA_API_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: BUGZILLA_API_KEY
+        - name: BUGZILLA_SERVICE_URI
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: BUGZILLA_SERVICE_URI
+        - name: BAP_URL
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: BAP_URL
+        - name: VOLUME_IMAGES_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: biap-igm-node-js-cm
+              key: VOLUME_IMAGES_BASE_URL
+        image: {{ .Values.biapIGMNodeJS.image.repo }}:{{ .Values.biapIGMNodeJS.image.tag }}
+        imagePullPolicy: Always
+        name: biap-igm-node-js
+        ports:
+        - containerPort: {{ .Values.biapIGMNodeJS.port }}
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 300m
+            memory: 1Gi
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.biapIGMNodeJS.port }}
+          initialDelaySeconds: 60  
+          periodSeconds: 300  
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: biap-igm-node-js-svc
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: biap-igm-node-js
+  ports:
+    - protocol: TCP
+      port: {{ .Values.biapIGMNodeJS.port }}
+      targetPort: {{ .Values.biapIGMNodeJS.port }}

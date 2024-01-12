@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1 
+kind: Ingress 
+metadata: 
+  name: {{ .Values.appName }}-frontend-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.allow-http: "false"
+spec: 
+  ingressClassName: "gce"
+  tls: 
+    - secretName: chaincodeconsulting-tls-secret 
+  rules: 
+  - host: {{ .Values.appDomain }}
+    http: 
+      paths: 
+      - backend: 
+          service: 
+            name: {{ .Values.appName }}-frontend-svc
+            port: 
+              number: 80
+        path: / 
+        pathType: Prefix 
