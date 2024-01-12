@@ -6,7 +6,7 @@ Deployer to deploy ONDC compliant Buyer Application on GCP Marketplace
 
 ## Architecture
 
-![Architecture diagram](resources/ONE-CLICK-Seller-App-k8s-architecture.jpg)
+![Architecture diagram](resources/ONE-CLICK-Buyer-App-k8s-architecture.jpg)
 
 By default, Buyer App Frontend service is exposed using a ClusterIP Service on port 80.
 
